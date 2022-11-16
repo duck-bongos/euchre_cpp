@@ -8,7 +8,7 @@ class Deck
 {
 public:
     // declare a vector with all 24 cards
-    vector<Card> deck[24];
+    vector<Card> cards[24];
 
     // constructor
 
@@ -23,7 +23,7 @@ public:
             {
                 Card card = Card(c, s);
                 idx = i * j + j;
-                deck->push_back(card);
+                cards->push_back(card);
                 j++;
             }
             i++;
@@ -33,7 +33,7 @@ public:
     void shuffle()
     {
         auto rng = std::default_random_engine{};
-        std::shuffle(std::begin(deck), end(deck), rng);
+        std::shuffle(std::begin(cards), end(cards), rng);
     }
 
     // destructor

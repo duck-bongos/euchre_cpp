@@ -1,5 +1,5 @@
 #include <map>
-#include <string>
+#include <string.h>
 #include "suit.h"
 
 using namespace std;
@@ -13,6 +13,8 @@ public:
     int value;        // used to help with sorting and gameplay rules.
     unordered_map<string, int> cardNameToValue;
     unordered_map<string, int> cardValueToName;
+    string color;   // e.g. "red"
+    int colorValue; // red = 0, black = 1
 
     // Constructor
     Card(string suitName, string valueName)
@@ -23,6 +25,17 @@ public:
         int suitValue = suit.getSuitValue(suitName);
 
         value = cardNameToValue[valueName];
+
+        if ("diamond".compare(suit.name) || strcmp(suitName, "heart"))
+        {
+            color = "red";
+            colorValue = 0;
+        }
+        else
+        {
+            color = "black";
+            colorValue = 1;
+        }
     };
 
     ~Card(); // Destructor
