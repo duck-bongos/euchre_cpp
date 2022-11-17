@@ -1,5 +1,5 @@
 #include <map>
-#include <string>
+#include <string.h>
 #include "suit.h"
 
 using namespace std;

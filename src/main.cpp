@@ -44,12 +44,10 @@ int main()
     phoenix.next = &leviathan;
     leviathan.next = &pegasus;
     pegasus.next = &sphinx;
-    
+
     // give person control of the dealer
     sphinx.dealer = true;
-    Player* leftOfDealer = sphinx.next;
-
-    
+    Player *leftOfDealer = sphinx.next;
 
     // need a dealer
 
