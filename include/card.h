@@ -1,5 +1,5 @@
 #include <map>
-#include <string.h>
+#include <string>
 #include "suit.h"
 
 using namespace std;
@@ -26,7 +26,7 @@ public:
 
         value = cardNameToValue[valueName];
 
-        if ("diamond".compare(suit.name) || strcmp(suitName, "heart"))
+        if (strcmp(suit.name.c_str(), "diamond") || strcmp(suitName.c_str(), "heart"))
         {
             color = "red";
             colorValue = 0;

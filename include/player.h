@@ -1,12 +1,17 @@
 #include "card.h"
 #include <vector>
 
+class Player;
 class Player
 {
 public:
     // based on loner status
     bool playing = true;
-
+    bool dealer = false;  // whether the player is dealing or not
+    
+    // Singly linked list structure
+    Player* next;
+    
     // constructor
     Player();
 
@@ -14,6 +19,7 @@ public:
     ~Player();
 
     vector<Card> cards;
+    
 
     void addCardToHand(Card c)
     {

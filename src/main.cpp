@@ -13,6 +13,7 @@ Euchre, like all card games is a repeated comparison game. The goal is to compar
 // declare global variables
 Player dealer;
 
+// maybe makes sense to be a circular linked list? move header and whomever is at the head is the dealer?
 enum Players
 {
     sphinx,
@@ -20,6 +21,12 @@ enum Players
     leviathan,
     pegasus
 };
+
+// cards are dealt to 4 players
+Player sphinx = Player();
+Player phoenix = Player();
+Player leviathan = Player();
+Player pegasus = Player();
 
 int main()
 {
@@ -30,13 +37,19 @@ int main()
     // cards are shuffled
     d.shuffle();
 
-    // cards are dealt to 4 players
-    Player sphinx = Player();
-    Player phoenix = Player();
-    Player leviathan = Player();
-    Player pegasus = Player();
+    d.printAll();
 
-    // give person control of
+    // declare the CLL
+    sphinx.next = &phoenix;
+    phoenix.next = &leviathan;
+    leviathan.next = &pegasus;
+    pegasus.next = &sphinx;
+    
+    // give person control of the dealer
+    sphinx.dealer = true;
+    Player* leftOfDealer = sphinx.next;
+
+    
 
     // need a dealer
 
