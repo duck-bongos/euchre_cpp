@@ -1,10 +1,2 @@
-breakpoint set --file main.cc --line 156
-breakpoint set --file main.cc --line 162
-breakpoint set --file main.cc --line 230
-breakpoint set --file main.cc --line 231
-breakpoint set --file main.cc --line 252
-breakpoint set --file player.h --line 112
-
-
 breakpoint set --file player.h --line 25
 breakpoint set --file deck.h --line 113
