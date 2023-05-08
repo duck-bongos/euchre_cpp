@@ -23,7 +23,12 @@ public:
     // constructor
     Deck()
     {
+        buildDeck();
+    };
+    
+    void buildDeck() {
         int idx_ = 0;
+        this->idx = 0;
         for (int i = 0; i < 4; i++)
         {
             for (int j = 9; j < 15; j++)
@@ -36,13 +41,12 @@ public:
         }
 
         // shuffle them in preparation for a deal
-        int r = rand()  % 1000;
+        int r = rand() % 1000;
         shuffle(r);
 
         // reverse the order
         reverse();
-
-    };
+    }
 
     void shuffle(int randNumber)
     {
@@ -133,6 +137,7 @@ public:
                 order[playerId]->addCards(t);
             }
         }
+        
         return &cards[idx+1];
     }
 
@@ -140,7 +145,7 @@ public:
     {
         for (int i = 0; i < 24; i++)
         {
-            std::cout << i << " " << cards[i].value << " of " << cards[i].suit << "\n";
+            std::cout << i+1 << ". " << cards[i] << "\n";
         }
     };
 

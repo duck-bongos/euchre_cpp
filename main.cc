@@ -129,7 +129,7 @@ int main() {
     int dealer = deck.pickDealer();
     int leader = (dealer + 1) % 4;
     int r = rand() % 1000;
-    cout << "Player " << dealer << "'s hand: " << endl;
+    // cout << "Player " << dealer << "'s hand: " << endl;
     Player one = Player();
     one.name = "Player One";
     Player two = Player();
@@ -152,15 +152,18 @@ int main() {
             order[i]->team = 1;
         }
     }
-    
 
-    while ( score.evens < 10 || score.odds < 10 ) {
+    int timesThrough = 0;
+
+    while ( score.evens < 10 && score.odds < 10 ) {
         // deal the cards
+        deck.printAll();
         Card* topCard = deck.dealCards(dealer, &one, &two, &three, &four);
         cout << "Dealer IDX #: " << dealer << endl;
 
         int trump = -1;
         int whoCalledTrump = -1;
+        tricks = {0, 0};
         // -------
         // BIDDING
         // --------
@@ -226,6 +229,7 @@ int main() {
             // now discard so you don't repeat
             for (int i = 0; i < played.size(); i++) {
                 played[i]->discard();
+                order[i]->discard();
             }
 
 
@@ -243,7 +247,18 @@ int main() {
         dealer++;
         dealer = dealer % 4;
 
-        
+        // Rebuild the deck since all values are set to NULL
+        deck.buildDeck();
+        deck.printAll();
+        cout << "\n" << endl;
+        timesThrough++;
+    }
+    cout << score << endl;
+    if (score.evens > score.odds) {
+        cout << "Evens win!" << endl;
+    }
+    else {
+        cout << "Odds win!" << endl;
     }
     return 0;
 }
