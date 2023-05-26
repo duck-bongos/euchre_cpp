@@ -1,2 +1,0 @@
-breakpoint set --file player.h --line 25
-breakpoint set --file deck.h --line 113

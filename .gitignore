@@ -34,3 +34,7 @@
 # IDEs
 .vscode*
 .vs*
+
+# idk
+*.dSYM/*
+.DS_STORE

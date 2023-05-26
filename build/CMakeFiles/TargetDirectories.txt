@@ -1,0 +1,3 @@
+/Users/dan/all_developing/cpp/euchre_cpp/build/CMakeFiles/euchre.dir
+/Users/dan/all_developing/cpp/euchre_cpp/build/CMakeFiles/edit_cache.dir
+/Users/dan/all_developing/cpp/euchre_cpp/build/CMakeFiles/rebuild_cache.dir
