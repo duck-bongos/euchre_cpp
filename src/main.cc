@@ -128,9 +128,7 @@ Score tallyScore(Score score, Score tricks, int whoCalledTrump, int whoCalledAlo
     return score;
 };
 
-
-int main() {
-
+void play() {
     srand(time(NULL));
     Deck deck = Deck();
     // deck.printAll();
@@ -296,6 +294,12 @@ int main() {
     else {
         cout << "Odds win!" << endl;
     }
+
+}
+
+
+int main() {
+    play();
     return 0;
 }
 
