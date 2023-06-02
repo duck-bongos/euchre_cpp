@@ -159,7 +159,9 @@ class Player {
         Trump preferredSuit(int topSuit, int bidRound) {
             int maxScore = -1;
             int maxIdxSuit = -1;
-            Trump t = {-1,0};
+            Trump t = {};
+            t.suit = -1;
+            t.alone = 0;
 
             for (int i=0; i < 4; i++) {
                 if (i == topSuit && bidRound > 1) {
@@ -207,7 +209,9 @@ class Player {
 
         Trump roundOne(int topSuit, int bidRound) {
             vector<vector<Card *>> perms = allPerms();
-            Trump t = {-1,0};
+            Trump t = {};
+            t.suit = -1;
+            t.alone = 0;
             int oneMaxScore = -1;
             int oneMaxProb = 0.0;
             int oneMaxIdx = -1;

@@ -40,14 +40,66 @@ If this suit WERE trump, this is how good my hand would be."
 #include <vector>
 #include "core/card.h"
 #include "core/deck.h"
-#include "bsoncxx/json.hpp"
-#include "mongocxx/client.hpp"
-#include "mongocxx/instance.hpp"
+#include <bsoncxx/builder/basic/document.hpp>
+#include <bsoncxx/json.hpp>
+#include <mongocxx/client.hpp>
+#include <mongocxx/exception/bulk_write_exception.hpp>
+#include <mongocxx/instance.hpp>
+#include <mongocxx/stdx.hpp>
+#include <mongocxx/uri.hpp>
 
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+// define the Mongo CXX client
+mongocxx::instance instance{};
+mongocxx::uri uri("mongodb://localhost:27017");
+mongocxx::client client{uri};
+
+auto EUCHRE_DB = client["euchre"];
+
+// commonly referred to as 'collection'
+auto GAMES = EUCHRE_DB["games"];
+
+// Define BSON
+using bsoncxx::builder::basic::document;
+using bsoncxx::builder::basic::kvp;
+using bsoncxx::builder::basic::make_array;
+using bsoncxx::builder::basic::make_document;
+
 using namespace std;
+
+
+bsoncxx::document::value recordCard(Card * c) {
+    int s = c->suit;
+    int v = c->value;
+    auto record = make_document(kvp("suit", s), kvp("value", v));
+    return record;
+}
+
+bsoncxx::array::value makeTrick(vector<Card*> played) {
+    vector<bsoncxx::document::value> trick;
+    for (int i = 0; i < played.size(); i++) {
+        bsoncxx::document::value d = recordCard(played[i]);
+        trick.push_back(d);
+    }
+
+    // loner
+    if (played.size() < 4) {
+        return make_array(trick[0], trick[1], trick[2]);
+    }
+    // normal
+    else {
+        return make_array(trick[0], trick[1], trick[2], trick[3]);
+    }
+}
+
+bsoncxx::document::value recordScore(Score s) {
+    return make_document(
+        kvp("evens", s.evens),
+        kvp("odds", s.odds)
+    );
+}
 
 // compare hand - basically an argmax algorithm
 template <typename T, int N>
@@ -63,6 +115,7 @@ int whoWins(vector<Card*>trick) {
             winner = i;
         }
     }
+    cout << "The best card is " << *(trick[winner]) << endl;
     return winner;
 }
 
@@ -83,6 +136,7 @@ void showTrick(vector<Card*>trick) {
         cout << cc << endl;
     }
 }
+
 
 
 Score tallyScore(Score score, Score tricks, int whoCalledTrump, int whoCalledAlone) {
@@ -128,7 +182,8 @@ Score tallyScore(Score score, Score tricks, int whoCalledTrump, int whoCalledAlo
     return score;
 };
 
-void play() {
+
+void play(int gameID) {
     srand(time(NULL));
     Deck deck = Deck();
     // deck.printAll();
@@ -161,20 +216,26 @@ void play() {
 
     int timesThrough = 0;
 
+    int w = 1;
+
     while ( score.evens < 10 && score.odds < 10 ) {
         // deal the cards
         cout << score << endl;
         Card* topCard = deck.dealCards(dealer, &one, &two, &three, &four);
-        cout << "Dealer IDX #: " << dealer << endl;
+        cout << "Dealer: " << order[dealer]->name << endl;
+        cout << "Leader: " << order[leader]->name << endl;
 
-        Trump trump = {-1, 0};
+        Trump trump = {};
+        trump.suit = -1;
+        trump.alone = 0;
+
         int whoCalledTrump = -1;
-        tricks = {0, 0};
+        tricks.evens = 0;
+        tricks.odds = 0;
         // -------
         // BIDDING
         // --------
         // first round of bidding
-        leader = (dealer + 1) % 4; 
         int lonerIdx = -1;
         int skipPartner = -1;
         for (int i = 0; i < 4; i++) {
@@ -182,7 +243,7 @@ void play() {
             trump = order[bidderIdx]->callTrump(topCard, 1);
             if (trump.suit >= 0) {
                 whoCalledTrump = order[bidderIdx]->team;
-                cout << "Team " << whoCalledTrump << " picked it up!" << endl;
+                cout << "Team " << whoCalledTrump << " picked up the " << *topCard << "!" << endl;
                 if (trump.alone > 0) {
                     skipPartner = ((bidderIdx + 2) % 4);
                 }
@@ -220,6 +281,10 @@ void play() {
         +++++++++++++++
         */
         // five cards per hand
+        cout << "Hand number: " << w << endl;
+        showHands(order);
+
+        int f = 1;
         for (int i = 0; i < 5; i++) {
             int leadSuit = -1;
             vector<Card*> played;
@@ -239,13 +304,17 @@ void play() {
                     if (i == 0) {
                         leadSuit = c->suit;
                     }
+                    cout << "Player Idx " << playerIdx << ", name " << p->name << " played " << *c << endl;
                     played.push_back(c);
+                    // c->discard();
                 }
             }
             
-            showTrick(played);
+            // showTrick(played);
 
             int winnerIdx = whoWins(played);
+            cout << order[winnerIdx]->name << " wins the trick!\n" << endl;
+            leader = winnerIdx;
             int team = order[winnerIdx]->team;
             if(team % 2 == 1) {
                 tricks.odds += 1;
@@ -253,18 +322,42 @@ void play() {
             else {
                 tricks.evens += 1;
             }
+
+            // Write game record to database            
+            bsoncxx::document::value s = recordScore(score);
+            bsoncxx::document::value t = recordScore(tricks);
+            bsoncxx::array::value haaa = makeTrick(played);
             
+            auto db_response = GAMES.insert_one(make_document(
+                kvp("game", gameID),
+                kvp("handNo", f),
+                kvp("dealerId", dealer),
+                kvp("leaderId", leader),
+                kvp("leadSuit", leadSuit),
+                kvp("trump", trump.suit),
+                kvp("topCard", recordCard(topCard)), 
+                kvp("played", haaa),
+                kvp("tricks", t),
+                kvp("score", s)
+            ));
+            assert(db_response);
+
             // now discard so you don't repeat
             for (int i = 0; i < played.size(); i++) {
                 played[i]->discard();
                 order[i]->discard();
             }
 
-
             // no point in playing the last card
             if ((tricks.odds == 3 && tricks.evens == 1) || (tricks.odds == 1 && tricks.evens == 3)) {
                 continue;
             }
+
+            showHands(order);
+
+            // Increase hand number
+            f++;
+        
         }
 
         // score the tricks
@@ -275,10 +368,14 @@ void play() {
 
         score = tallyScore(score, tricks, whoCalledTrump, a);
 
-
         // Move to next dealer
         dealer++;
         dealer = dealer % 4;
+        cout << "Next dealer name: " << order[dealer]->name << endl;
+
+        leader = (dealer + 1) % 4;
+        cout << "Next leader name: " << order[leader]->name << endl;
+
 
         // Rebuild the deck since all values are set to NULL
         deck.buildDeck();
@@ -299,7 +396,12 @@ void play() {
 
 
 int main() {
-    play();
+    int gameID = 0;
+    while (gameID < 1) {
+        play(gameID);
+        gameID++;
+    }
+
     return 0;
 }
 

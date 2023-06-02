@@ -4,6 +4,8 @@
 #include <string.h>
 
 using namespace std;
+// Define BSON
+
 
 static const map<int, string>values{{0, "NULL"}, {9, "Nine"}, {10, "Ten"}, {11, "Jack"}, {12, "Queen"}, {13, "King"}, {14, "Ace"}};
 static const map<int, string>suits{{-1, "NULL"}, {0, "Clubs"}, {1, "Diamonds"}, {2, "Spades"}, {3, "Hearts"}};

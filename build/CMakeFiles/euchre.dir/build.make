@@ -92,6 +92,8 @@ euchre_EXTERNAL_OBJECTS =
 
 euchre: CMakeFiles/euchre.dir/src/main.cc.o
 euchre: CMakeFiles/euchre.dir/build.make
+euchre: /usr/local/lib/libmongocxx.dylib
+euchre: /usr/local/lib/libbsoncxx.dylib
 euchre: CMakeFiles/euchre.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/dan/all_developing/cpp/euchre_cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable euchre"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/euchre.dir/link.txt --verbose=$(VERBOSE)
